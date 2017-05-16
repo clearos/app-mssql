@@ -3,7 +3,7 @@ Name: app-mssql
 Epoch: 1
 Version: 1.0.0
 Release: 1%{dist}
-Summary: Microsoft Database Server
+Summary: MS SQL Database Server
 License: GPLv3
 Group: ClearOS/Apps
 Source: %{name}-%{version}.tar.gz
@@ -12,20 +12,19 @@ Requires: %{name}-core = 1:%{version}-%{release}
 Requires: app-base
 
 %description
-MSSQL is a popular database system.  It can be configured to run database driven applications, websites, CRM and practically any other resource requiring a relational storage service.
+MS SQL is a popular database system.  It can be configured to run database driven applications, websites, CRM and practically any other resource requiring a relational storage service.
 
 %package core
-Summary: MSSQL Database Server - Core
+Summary: MS SQL Database Server - Core
 License: LGPLv3
 Group: ClearOS/Libraries
 Requires: app-base-core
 Requires: app-base-core >= 1:1.2.6
 Requires: app-network-core
-Requires: app-storage-core >= 1:1.4.7
 Requires: mssql-server >= 11.0
 
 %description core
-MSSQL is a popular database system.  It can be configured to run database driven applications, websites, CRM and practically any other resource requiring a relational storage service.
+MS SQL is a popular database system.  It can be configured to run database driven applications, websites, CRM and practically any other resource requiring a relational storage service.
 
 This package provides the core API and libraries.
 
@@ -38,9 +37,7 @@ mkdir -p -m 755 %{buildroot}/usr/clearos/apps/mssql
 cp -r * %{buildroot}/usr/clearos/apps/mssql/
 
 install -d -m 0755 %{buildroot}/var/clearos/mssql
-install -d -m 0755 %{buildroot}/var/clearos/mssql/backup
-install -D -m 0644 packaging/mssql.php %{buildroot}/var/clearos/base/daemon/mssql.php
-install -D -m 0644 packaging/mssql_default.conf %{buildroot}/etc/clearos/storage.d/mssql_default.conf
+install -D -m 0644 packaging/mssql-server.php %{buildroot}/var/clearos/base/daemon/mssql-server.php
 
 %post
 logger -p local6.notice -t installer 'app-mssql - installing'
@@ -78,11 +75,10 @@ exit 0
 %files core
 %defattr(-,root,root)
 %exclude /usr/clearos/apps/mssql/packaging
+%exclude /usr/clearos/apps/mssql/unify.json
 %dir /usr/clearos/apps/mssql
 %dir /var/clearos/mssql
-%dir /var/clearos/mssql/backup
 /usr/clearos/apps/mssql/deploy
 /usr/clearos/apps/mssql/language
 /usr/clearos/apps/mssql/libraries
-/var/clearos/base/daemon/mssql.php
-/etc/clearos/storage.d/mssql_default.conf
+/var/clearos/base/daemon/mssql-server.php
