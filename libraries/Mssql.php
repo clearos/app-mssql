@@ -173,7 +173,7 @@ class Mssql extends Daemon
      */
     function get_mssql_version()
     {
-        return "SQL Server 2017 CTP 2.0";
+        return "14.0.500.272-2";
     }
 
     /**
