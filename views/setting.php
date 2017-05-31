@@ -47,6 +47,14 @@ echo infobox_highlight(
     $options
 );
 
+if(!$is_password_set)
+{
+	echo infobox_warning(
+	    lang('mssql_set_password_first'),
+	    lang('mssql_set_password_first_help')
+	);
+}
+
 
 echo form_open('mssql',array('id' => 'mssql_password_set'));
 echo form_header(lang('base_password'));

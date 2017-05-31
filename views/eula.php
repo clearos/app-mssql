@@ -134,10 +134,10 @@ echo form_header('');
 </div>
 </div>
 </div>
-
+<input type="hidden" name="hidden" value="1">
 <?php
 
-echo field_password('system_password', '', lang('mssql_system_password'));
+//echo field_password('system_password', '', lang('mssql_system_password'));
 echo field_button_set(
     array(form_submit_custom('submit', lang('mssql_i_agree'), 'high'))
 );

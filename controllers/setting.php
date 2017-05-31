@@ -141,6 +141,7 @@ class Setting extends ClearOS_Controller
             $data['is_running'] = $this->mssql->get_running_state();
             $data['url_download'] = $this->mssql->get_download_url();
             $data['server_version'] = $this->mssql->get_mssql_version();
+            $data['is_password_set'] = $this->mssql->is_password_set();
         } catch (Exception $e) {
             $this->page->view_exception($e);
             return;
@@ -159,18 +160,13 @@ class Setting extends ClearOS_Controller
     	
     	$this->load->library('mssql/Mssql');
     	$this->lang->load('mssql');
-    	$system_password = $this->input->post('system_password');
-    	$this->form_validation->set_policy('system_password', 'mssql/mssql', 'validate_password', TRUE);
-    	$form_ok = $this->form_validation->run();
-    	if ($form_ok) {
-            try {
-               
-    			$this->mssql->set_eula_agreed($system_password);
-    			redirect('mssql');
-            } catch (Exception $e) {
-                $this->page->view_exception($e);
-                return;
-            }
+        try {
+           
+			$this->mssql->set_eula_agreed();
+			redirect('mssql');
+        } catch (Exception $e) {
+            $this->page->view_exception($e);
+            return;
         }
     	$this->page->view_form('mssql/eula', $data, lang('base_settings'));
     }
