@@ -159,16 +159,6 @@ class Mssql extends Daemon
         );
         $output = $shell->get_output();
 
-        $myfile = fopen("/home/xtreem/logs.txt", "a") or die("Unable to open file!");
-        $txt = json_encode($retval);
-        fwrite($myfile, "\n\n\n\n\n\n\n\n". $txt);
-        fclose($myfile);
-
-        $myfile = fopen("/home/xtreem/logs.txt", "a") or die("Unable to open file!");
-        $txt = json_encode($output);
-        fwrite($myfile, "\n\n". $txt);
-        fclose($myfile);
-
         //var_dump($output); die;
         $error = (preg_match('/su: Authentication failure/', $output[2])) ? lang('mssql_system_password_wrong') : NULL;
         if($error)
@@ -284,18 +274,6 @@ class Mssql extends Daemon
         $output = $shell->get_output();
         //var_dump($retval);
         //var_dump($output); die;
-
-
-        $myfile = fopen("/home/xtreem/logs.txt", "a") or die("Unable to open file!");
-        $txt = json_encode($retval);
-        fwrite($myfile, "\n\n\n\n\n\n\n\n". $txt);
-        fclose($myfile);
-
-        $myfile = fopen("/home/xtreem/logs.txt", "a") or die("Unable to open file!");
-        $txt = json_encode($output);
-        fwrite($myfile, "\n\n". $txt);
-        fclose($myfile);
-
 
 
         $error = (preg_match('/su: Authentication failure/', $output[2])) ? lang('mssql_system_password_wrong') : NULL;
