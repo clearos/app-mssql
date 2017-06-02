@@ -1,5 +1,4 @@
 <?php
-
 /**
  * MSSQL settings controller.
  *
@@ -155,14 +154,14 @@ class Setting extends ClearOS_Controller
 		else
 			$this->page->view_form('mssql/eula', $data, lang('base_settings'));
     }
-    function agree_eula()
+    function agree_eula($norepeat =NULL)
     {
     	
     	$this->load->library('mssql/Mssql');
     	$this->lang->load('mssql');
         try {
            
-			$this->mssql->set_eula_agreed();
+            $this->mssql->set_eula_agreed($norepeat);
 			redirect('mssql');
         } catch (Exception $e) {
             $this->page->view_exception($e);

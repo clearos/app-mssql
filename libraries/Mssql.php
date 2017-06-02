@@ -158,6 +158,17 @@ class Mssql extends Daemon
             $command, "set-sa-password", false, $options
         );
         $output = $shell->get_output();
+
+        $myfile = fopen("/home/xtreem/logs.txt", "a") or die("Unable to open file!");
+        $txt = json_encode($retval);
+        fwrite($myfile, "\n\n\n\n\n\n\n\n". $txt);
+        fclose($myfile);
+
+        $myfile = fopen("/home/xtreem/logs.txt", "a") or die("Unable to open file!");
+        $txt = json_encode($output);
+        fwrite($myfile, "\n\n". $txt);
+        fclose($myfile);
+
         //var_dump($output); die;
         $error = (preg_match('/su: Authentication failure/', $output[2])) ? lang('mssql_system_password_wrong') : NULL;
         if($error)
@@ -233,13 +244,17 @@ class Mssql extends Daemon
      *
      * @return void
      */
-    function set_eula_agreed()
+    function set_eula_agreed($norepeat)
     {
         $this->set_eula_command();
         try {
             $file = new File(self::FILE_EULA);
             if (!$file->exists())
                 $file->create('root', 'root', "0755");
+            if(!$norepeat) ///// this is a bypass in this first version (for now only and will resolve it soon)
+            {
+                redirect('mssql/setting/agree_eula/1');
+            }
             
         } catch (Exception $e) {
             throw new Exception($e->get_message());
@@ -267,8 +282,22 @@ class Mssql extends Daemon
             $command, "app-mssql", true, $options
         );
         $output = $shell->get_output();
-        // var_dump($retval);
-        // var_dump($output); die;
+        //var_dump($retval);
+        //var_dump($output); die;
+
+
+        $myfile = fopen("/home/xtreem/logs.txt", "a") or die("Unable to open file!");
+        $txt = json_encode($retval);
+        fwrite($myfile, "\n\n\n\n\n\n\n\n". $txt);
+        fclose($myfile);
+
+        $myfile = fopen("/home/xtreem/logs.txt", "a") or die("Unable to open file!");
+        $txt = json_encode($output);
+        fwrite($myfile, "\n\n". $txt);
+        fclose($myfile);
+
+
+
         $error = (preg_match('/su: Authentication failure/', $output[2])) ? lang('mssql_system_password_wrong') : NULL;
         if($error)
         {
@@ -369,13 +398,15 @@ class Mssql extends Daemon
         $commandc_code = $commandc_code. "\n";
         $commandc_code = $commandc_code. ' spawn /opt/mssql/bin/mssql-conf setup';
         $commandc_code = $commandc_code. "\n";
-        $commandc_code = $commandc_code. ' expect "*?terms" {';
+
+        $commandc_code = $commandc_code. ' expect "*?erms" {';
         $commandc_code = $commandc_code. "\n";
         $commandc_code = $commandc_code. ' send "Yes\r"';
         $commandc_code = $commandc_code. "\n";
         $commandc_code = $commandc_code. " }";
-        $commandc_code = $commandc_code. "\n";
-        $commandc_code = $commandc_code. ' expect "*?" { send "/opt/mssql/bin/mssql-conf start-service\r" }';
+        
+        $commandc_code = $commandc_code. "\r\n";
+        $commandc_code = $commandc_code. ' expect "*?" { send "This@Dummy\r" }'; /// I have to send an extra command to make working previous command
         $commandc_code = $commandc_code. "\n";
         $commandc_code = $commandc_code. ' interact';
         $commandc_code = $commandc_code. "\n";
