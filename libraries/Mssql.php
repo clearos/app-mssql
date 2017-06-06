@@ -58,11 +58,13 @@ clearos_load_language('mssql');
 use \clearos\apps\base\Daemon as Daemon;
 use \clearos\apps\base\Shell as Shell;
 use \clearos\apps\base\File as File;
+use \clearos\apps\base\Folder as Folder;
 use \clearos\apps\network\Network_Utils as Network_Utils;
 
 clearos_load_library('base/Daemon');
 clearos_load_library('base/Shell');
 clearos_load_library('base/File');
+clearos_load_library('base/Folder');
 clearos_load_library('network/Network_Utils');
 
 // Exceptions
@@ -99,8 +101,8 @@ class Mssql extends Daemon
     // V A R I A B L E S
     ///////////////////////////////////////////////////////////////////////////////
 
-    //const FILE_EULA = "/usr/clearos/apps/mssql/mssql_eula";
-    const FILE_EULA = 'mssql_eula';
+    const FOLDER_EULA = '/var/opt/mssql';
+    const FILE_EULA = '/var/opt/mssql/mssql.conf';
 
     ///////////////////////////////////////////////////////////////////////////////
     // M E T H O D S
@@ -167,12 +169,14 @@ class Mssql extends Daemon
         }
         else
         {
-            $file = new File(self::FILE_EULA);
+            //////// Set a flag to store password is set 
+            $file = new File(self::FILE_EULA, TRUE);
             if (!$file->exists())
             {
-                $file->create('root', 'root', "0755");
+                $file->create('mssql', 'mssql', "0755");
             }
-            $content[] = "password";
+            $content = $file->get_contents_as_array();
+            $content[] = "[passwordset]";
             $file->dump_contents_from_array($content);
         }
     }
@@ -204,11 +208,11 @@ class Mssql extends Daemon
      */
     function is_password_set()
     {
-        $file = new File(self::FILE_EULA);
+        $file = new File(self::FILE_EULA, TRUE);
         if ($file->exists())
         {
             $content = $file->get_contents_as_array();
-            if(in_array('password', $content))
+            if(in_array('[passwordset]', $content))
                 return TRUE;
             else
                 return FALSE;
@@ -223,9 +227,15 @@ class Mssql extends Daemon
      */
     function is_eula_agreed()
     {
-        $file = new File(self::FILE_EULA);
-            if ($file->exists())
-            return TRUE;
+        $file = new File(self::FILE_EULA, TRUE);
+        if ($file->exists())
+        {
+            $content = $file->get_contents_as_array();
+            if(in_array('[acceptedlicenseterms]', $content))
+                return TRUE;
+            else
+                return FALSE;
+        }
         return FALSE;
     }
 
@@ -236,51 +246,31 @@ class Mssql extends Daemon
      */
     function set_eula_agreed($norepeat)
     {
-        $this->set_eula_command();
         try {
-            $file = new File(self::FILE_EULA);
-            if (!$file->exists())
-                $file->create('root', 'root', "0755");
-            if(!$norepeat) ///// this is a bypass in this first version (for now only and will resolve it soon)
-            {
-                redirect('mssql/setting/agree_eula/1');
+            $folder = new Folder(self::FOLDER_EULA, TRUE);
+            if (!$folder->exists())
+                $folder->create('mssql', 'mssql', "0755");
+
+            try {
+                $file = new File(self::FILE_EULA, TRUE);
+                if (!$file->exists())
+                    $file->create('mssql', 'mssql', "0755");
+               
+                $content[] = "[acceptedlicenseterms]";
+                $file->dump_contents_from_array($content);
+               
+                
+            } catch (Exception $e) {
+                throw new Exception($e->get_message());
             }
+           
             
         } catch (Exception $e) {
             throw new Exception($e->get_message());
         }
-    }
-    /**
-     * Set Eula File and RUn it via Expect.
-     *
-     * @param string $system password 
-     *
-     * @return Exception if any error
-     */
-    public function set_eula_command()
-    {
-        clearos_profile(__METHOD__, __LINE__);
 
-        // set_password will handle the validation
+        
 
-        $this->set_eula_expect(); 
-        $command = COMMAND_MSSQL_FILE;
-
-        $shell = new Shell();
-        $options['validate_exit_code'] = FALSE;
-        $retval = $shell->execute(
-            $command, "app-mssql", true, $options
-        );
-        $output = $shell->get_output();
-        //var_dump($retval);
-        //var_dump($output); die;
-
-
-        $error = (preg_match('/su: Authentication failure/', $output[2])) ? lang('mssql_system_password_wrong') : NULL;
-        if($error)
-        {
-            throw new Engine_Exception($error);
-        }
     }
 
 
@@ -349,43 +339,6 @@ class Mssql extends Daemon
         $commandc_code = $commandc_code. ' expect "*?onfirm" { send "'.$password.'\r" }';
         $commandc_code = $commandc_code. "\n";
         $commandc_code = $commandc_code. "\r\n";
-        $commandc_code = $commandc_code. ' interact';
-        $commandc_code = $commandc_code. "\n";
-
-        $file = new File($file, TRUE);
-        if (!$file->exists())
-            $file->create('root','root','0777');
-        $commandc_codeA[] = $commandc_code;
-        $file->dump_contents_from_array($commandc_codeA);
-    }
-    /**
-     * Agree EULA via Expect.
-     *
-     * @param string $password 
-     * @param string $system password 
-     *
-     * @return void
-     */
-    function set_eula_expect()
-    {
-        $file = COMMAND_MSSQL_FILE;
-
-        $commandc_code = '#!/usr/bin/expect -f';
-        $commandc_code = $commandc_code.  "\n";
-        $commandc_code = $commandc_code. ' set timeout 20';
-        $commandc_code = $commandc_code. "\n";
-        $commandc_code = $commandc_code. ' spawn /opt/mssql/bin/mssql-conf setup';
-        $commandc_code = $commandc_code. "\n";
-
-        $commandc_code = $commandc_code. ' expect "*?erms" {';
-        $commandc_code = $commandc_code. "\n";
-        $commandc_code = $commandc_code. ' send "Yes\r"';
-        $commandc_code = $commandc_code. "\n";
-        $commandc_code = $commandc_code. " }";
-        
-        $commandc_code = $commandc_code. "\r\n";
-        $commandc_code = $commandc_code. ' expect "*?" { send "This@Dummy\r" }'; /// I have to send an extra command to make working previous command
-        $commandc_code = $commandc_code. "\n";
         $commandc_code = $commandc_code. ' interact';
         $commandc_code = $commandc_code. "\n";
 

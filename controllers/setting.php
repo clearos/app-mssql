@@ -160,7 +160,6 @@ class Setting extends ClearOS_Controller
     	$this->load->library('mssql/Mssql');
     	$this->lang->load('mssql');
         try {
-           
             $this->mssql->set_eula_agreed($norepeat);
 			redirect('mssql');
         } catch (Exception $e) {
