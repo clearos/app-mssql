@@ -1,9 +1,9 @@
 
 Name: app-mssql
 Epoch: 1
-Version: 1.0.0
+Version: 1.0.1
 Release: 1%{dist}
-Summary: **mssql_app_name**
+Summary: MS SQL Database Server
 License: GPLv3
 Group: ClearOS/Apps
 Source: %{name}-%{version}.tar.gz
@@ -12,10 +12,10 @@ Requires: %{name}-core = 1:%{version}-%{release}
 Requires: app-base
 
 %description
-**mssql_app_description**
+MS SQL is a popular database system.  It can be configured to run database driven applications, websites, CRM and practically any other resource requiring a relational storage service.
 
 %package core
-Summary: **mssql_app_name** - Core
+Summary: MS SQL Database Server - Core
 License: LGPLv3
 Group: ClearOS/Libraries
 Requires: app-base-core
@@ -24,7 +24,7 @@ Requires: app-network-core
 Requires: mssql-server >= 11.0
 
 %description core
-**mssql_app_description**
+MS SQL is a popular database system.  It can be configured to run database driven applications, websites, CRM and practically any other resource requiring a relational storage service.
 
 This package provides the core API and libraries.
 
