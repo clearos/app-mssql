@@ -102,6 +102,9 @@ class Mssql extends Daemon
     ///////////////////////////////////////////////////////////////////////////////
 
     const FOLDER_EULA = '/var/opt/mssql';
+    const FOLDER_1 = '/var/opt/mssql/data';
+    const FOLDER_2 = '/var/opt/mssql/.system';
+    const FOLDER_3 = '/var/opt/mssql/log';
     const FILE_EULA = '/var/opt/mssql/mssql.conf';
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -244,12 +247,27 @@ class Mssql extends Daemon
      *
      * @return void
      */
-    function set_eula_agreed($norepeat)
+    function set_eula_agreed()
     {
         try {
+
+            ////// Now Add Required Folders & Files /////
+
             $folder = new Folder(self::FOLDER_EULA, TRUE);
             if (!$folder->exists())
-                $folder->create('mssql', 'mssql', "0755");
+                $folder->create('mssql', 'mssql', "0770");
+
+            $folder = new Folder(self::FOLDER_1, TRUE);
+            if (!$folder->exists())
+                $folder->create('mssql', 'mssql', "0775");
+
+            $folder = new Folder(self::FOLDER_2, TRUE);
+            if (!$folder->exists())
+                $folder->create('mssql', 'mssql', "0775");
+
+            $folder = new Folder(self::FOLDER_3, TRUE);
+            if (!$folder->exists())
+                $folder->create('mssql', 'mssql', "0775");
 
             try {
                 $file = new File(self::FILE_EULA, TRUE);

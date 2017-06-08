@@ -154,13 +154,13 @@ class Setting extends ClearOS_Controller
 		else
 			$this->page->view_form('mssql/eula', $data, lang('base_settings'));
     }
-    function agree_eula($norepeat =NULL)
+    function agree_eula()
     {
     	
     	$this->load->library('mssql/Mssql');
     	$this->lang->load('mssql');
         try {
-            $this->mssql->set_eula_agreed($norepeat);
+            $this->mssql->set_eula_agreed();
 			redirect('mssql');
         } catch (Exception $e) {
             $this->page->view_exception($e);

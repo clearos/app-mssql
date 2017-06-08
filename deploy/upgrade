@@ -1,3 +1,5 @@
 #!/bin/sh
 
 /usr/sbin/addsudo /usr/sbin/connect.exp app-mssql
+
+groupadd mssql
